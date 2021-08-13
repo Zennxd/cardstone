@@ -1,6 +1,6 @@
 from random import randint
 from Battleground import Battleground
-from minion import Minion
+from Minion import Minion
 
 
 if __name__ == "__main__":

@@ -2,7 +2,7 @@ from typing import Optional
 from enum import IntEnum
 import random
 
-from minion import Minion, Lineup
+from Minion import Minion, Lineup
 
 
 class Order(IntEnum):
