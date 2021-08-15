@@ -34,3 +34,6 @@ class DivineShield(Effect):
 class Poison(Effect):
     def after_attack(self, target: Minion):
         target.health = -999999
+
+    def on_damage(self, attacker: Minion):
+        attacker.health = -999999

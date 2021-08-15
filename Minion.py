@@ -54,7 +54,7 @@ class Minion:
         if self.health < 1:
             health = f"\033[91m{health}"  # red
 
-        return f"""{shell_color}[{endc}{attack}{endc}|{health}{endc}{shell_color}]{endc}"""
+        return f"""{shell_color}[{endc}{attack}{endc}{shell_color}|{endc}{health}{endc}{shell_color}]{endc}"""
 
 
 class Lineup(List[Minion]):
