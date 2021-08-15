@@ -1,6 +1,6 @@
 from random import randint
 from battleground import Battleground
-from Minion import Minion
+from minion import Minion
 from effect import Poison, Taunt
 
 
