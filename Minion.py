@@ -1,7 +1,7 @@
 from typing import Optional, Type, List
 from random import randint
 
-from Effect import Effect, Poison, Taunt, DivineShield
+from effect import Effect, Poison, Taunt, DivineShield
 
 
 class Minion:

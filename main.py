@@ -1,7 +1,7 @@
 from random import randint
-from Battleground import Battleground
+from battleground import Battleground
 from Minion import Minion
-from Effect import Poison, Taunt
+from effect import Poison, Taunt
 
 
 if __name__ == "__main__":
