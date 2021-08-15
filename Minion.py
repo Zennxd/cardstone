@@ -1,7 +1,7 @@
 from typing import Optional, Type, List
 from random import randint
 
-import Effect
+from Effect import Effect, Poison, Taunt, DivineShield
 
 
 class Minion:
@@ -9,6 +9,8 @@ class Minion:
         self.attack = attack
         self.health = health
         self.lineup = lineup
+
+        self.effects: List[Effect] = []
 
         self.has_attacked = False
 
@@ -31,11 +33,28 @@ class Minion:
     def dead(self) -> bool:
         return self.health <= 0
 
+    def has_effect(self, effect_type: Type[Effect]) -> bool:
+        return len([e for e in self.effects if isinstance(e, effect_type)]) > 0
+
     def __str__(self):
         return self.__repr__()
 
     def __repr__(self):
-        return f"""{self.lineup.color}[{str(self.attack).rjust(2)}|{str(self.health).rjust(2)}]\033[0m"""
+        endc: str = "\033[0m"
+        shell_color: str = self.lineup.color
+        if self.has_effect(Taunt):
+            shell_color += '\033[4m'  # underlined
+
+        attack: str = str(self.attack).rjust(2)
+        poison: str = '\033[92m'  # green
+        if self.has_effect(Poison):
+            attack = f"{poison}{attack}"
+
+        health: str = str(self.health).rjust(2)
+        if self.health < 1:
+            health = f"\033[91m{health}"  # red
+
+        return f"""{shell_color}[{endc}{attack}{endc}|{health}{endc}{shell_color}]{endc}"""
 
 
 class Lineup(List[Minion]):
@@ -43,7 +62,11 @@ class Lineup(List[Minion]):
         self.color = color
         super().__init__()
 
-    def random_minion(self) -> Minion:
+    def random_target(self) -> Minion:
+        taunts = [t for t in self if t.has_effect(Taunt)]
+        if len(taunts) > 0:
+            return taunts[randint(0, len(taunts) - 1)]
+
         return self[randint(0, len(self) - 1)]
 
     def next_attacker(self) -> Minion:

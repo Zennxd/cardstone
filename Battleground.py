@@ -28,17 +28,32 @@ class Battleground:
 
     @classmethod
     def one_step(cls):
+        for m in cls.north_side + cls.south_side:
+            for effect in m.effects:
+                effect.combat_start()
+
         # select next attacker
         attacking_side = cls.next_attacking_side()
         attacker: Minion = attacking_side.next_attacker()
 
         # choose random target
-        target: Minion = cls.next_target_side().random_minion()
+        target: Minion = cls.next_target_side().random_target()
 
         print(f"{attacker} attacks {target} -> ", end="")
 
+        for effect in attacker.effects:
+            effect.before_attack(target)
+
         target.health -= attacker.attack
         attacker.health -= target.attack
+
+        for effect in target.effects:
+            effect.on_damage(attacker)
+            if target.dead():
+                effect.on_death(attacker)
+
+        for effect in attacker.effects:
+            effect.after_attack(target)
 
         print(f"{attacker}  {target}")
 
