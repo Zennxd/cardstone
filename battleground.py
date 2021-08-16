@@ -1,4 +1,3 @@
-from typing import Optional
 from enum import IntEnum
 import random
 
@@ -6,28 +5,43 @@ from minion import Minion, Lineup
 
 
 class Order(IntEnum):
+    """ Sets which side starts attacking in a fight."""
     NORTH_FIRST = 0,
+    """ North attacks first in the fight """
     SOUTH_FIRST = 1
+    """ South attacks first in the fight """
 
 
 class Battleground:
-    north_side: Lineup = Lineup('\033[94m')
-    south_side: Lineup = Lineup('\033[93m')
+    north_side: Lineup = Lineup(color='\033[94m')
+    """ First lineup of the fight, drawn at the top"""
+    south_side: Lineup = Lineup(color='\033[93m')
+    """ Second lineup of the fight, drawn at the bottom"""
 
     step: int = 0
+    """ Which attack of the fight we're currently simulating
+        (or: after the fight is over, the amount of attacks)"""
 
     order: Order = Order.NORTH_FIRST
+    """ Whether the first or second lineup attacks first """
 
     @classmethod
     def next_attacking_side(cls) -> Lineup:
+        """ this returns the opposite of next_target_side for a given step.
+         the cls.order offsets the order by one if set to SOUTH_FIRST. """
         return cls.north_side if (cls.step + cls.order) % 2 == 0 else cls.south_side
 
     @classmethod
     def next_target_side(cls) -> Lineup:
+        """ this returns the opposite of next_attacking_side for a given step.
+                 the cls.order offsets the order by one if set to SOUTH_FIRST. """
         return cls.north_side if (cls.step + cls.order) % 2 == 1 else cls.south_side
 
     @classmethod
     def one_step(cls):
+        """ The main logic for a given step in a fight. This method calls minion effects, calculates minion damage
+         during and after the attack, and prints the attack's outcome.
+         This method also increments the step variable. """
         for m in cls.north_side + cls.south_side:
             for effect in m.effects:
                 effect.combat_start()
@@ -68,6 +82,7 @@ class Battleground:
 
     @classmethod
     def render(cls):
+        """ Print the state of both north and south. This mostly depends on Minion.__repr__. """
         print(f"step: {cls.step if cls.step != 0 else 'Initial'}")
         for i, side in enumerate([cls.north_side, cls.south_side]):
             for m in side:
@@ -77,6 +92,8 @@ class Battleground:
 
     @classmethod
     def fight(cls):
+        """ call one_step until the fight is over.
+            A fight is over if one or both lineups are defeated (e.g. empty). """
         if len(cls.north_side) > len(cls.south_side):
             print("North attacks first")
             cls.order = Order.NORTH_FIRST
@@ -90,6 +107,7 @@ class Battleground:
 
         cls.render()
 
+        # main logic/view loop
         while not cls.north_side.defeated() and not cls.south_side.defeated():
             cls.one_step()
             cls.render()
