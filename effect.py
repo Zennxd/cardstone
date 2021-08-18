@@ -60,7 +60,10 @@ class AOE(Effect):
         left: Minion = target.lineup.before_of(target)
         right: Minion = target.lineup.next_of(target)
 
-        print(f"{left.lineup.index(left) if left is not None else 'X'} {self.owner.lineup.index(self.owner)} {right.lineup.index(right) if right is not None else 'X'}")
+        # print(f"
+        # {left.lineup.index(left) if left is not None else 'X'}
+        # {target.lineup.index(target)}
+        # {right.lineup.index(right) if right is not None else 'X'}")
 
         for m in [left, right]:
             if m is not None:
