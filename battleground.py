@@ -77,9 +77,10 @@ class Battleground:
         attacker.health -= target.attack
 
         for effect in target.effects:
-            effect.on_damage(attacker)
             if target.dead():
                 effect.on_death(attacker)
+            else:
+                effect.on_damage(attacker)
 
         for effect in attacker.effects:
             effect.after_attack(target)
