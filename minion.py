@@ -28,7 +28,7 @@ class Minion:
 
     @health.setter
     def health(self, value):
-        if self.has_effect(DivineShield):
+        if value < self._health and self.has_effect(DivineShield):
             self.effects = [e for e in self.effects if not isinstance(e, DivineShield)]
         else:
             self._health = value
@@ -50,8 +50,10 @@ class Minion:
             health=randint(1, 25),
             lineup=lineup
         )
-        if randint(0, 100) < 25:
+        if randint(0, 100) < 20:
             m.effects.append(Poison(m))
+        if randint(0, 100) < 25:
+            m.effects.append(DivineShield(m))
         if randint(0, 100) < 50:
             m.effects.append(Taunt(m))
 

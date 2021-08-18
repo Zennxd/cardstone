@@ -1,20 +1,24 @@
 import sys
 import os
+import time
 
 from battleground import Battleground
 from minion import Minion
 from effect import Poison, Taunt, DivineShield, AOE
 
 if __name__ == "__main__":
-    # sys.stdout = open(os.devnull, 'w')
-    f = open("results.csv", "a+")
+    iteration_amt: int = 100000
 
-    for iteration in range(1):
+    f = open(f"outcomes/results-{str(int(time.time()))}.csv", "w+")
+    if iteration_amt > 10:
+        sys.stdout = open(os.devnull, 'w')
+
+    for iteration in range(iteration_amt):
         Battleground.reset()
 
         # fill both teams
         for ii in range(7):  # 1/1 poison divine shield
-            m = Minion(attack=1, health=2, lineup=Battleground.north_side)
+            m = Minion(attack=1, health=1, lineup=Battleground.north_side)
             m.effects.append(Poison(m))
             m.effects.append(DivineShield(m))
             Battleground.north_side.append(m)

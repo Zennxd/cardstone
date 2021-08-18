@@ -30,19 +30,20 @@ class Effect:
 
 
 class Taunt(Effect):
-    """ An enemy minion must choose a minion with Taunt for an attack, if any exist """
+    """ An enemy minion must choose a minion with Taunt for an attack, if any exist. """
     # implementation in Lineup.random_target()
     pass
 
 
 class DivineShield(Effect):
-    """ A minion will not lose health for an attack if it has a Divine Shield. """
+    """ A minion will not lose health for an attack if it has a Divine Shield.
+        Divine Shields do not stack."""
     # implementation in Minion.health.setter
     pass
 
 
 class Poison(Effect):
-    """ The target of an attack by this minion will take practically infinite damage """
+    """ This minion will deal practically infinite damage. """
     def after_attack(self, target: Minion):
         target.health = -999
 
@@ -51,7 +52,7 @@ class Poison(Effect):
 
 
 class AOE(Effect):
-    """ Area- Of- Effect deals damage to the minions next to the target. """
+    """ Area-Of-Effect deals damage to the minions next to the target. """
     def after_attack(self, target: Minion):
         left: Minion = target.lineup.before_of(target)
         right: Minion = target.lineup.next_of(target)
