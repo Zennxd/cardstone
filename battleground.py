@@ -1,3 +1,4 @@
+from typing import List
 from enum import IntEnum
 import random
 
@@ -13,17 +14,31 @@ class Order(IntEnum):
 
 
 class Battleground:
-    north_side: Lineup = Lineup(color='\033[94m')
-    """ First lineup of the fight, drawn at the top"""
-    south_side: Lineup = Lineup(color='\033[93m')
-    """ Second lineup of the fight, drawn at the bottom"""
-
     step: int = 0
     """ Which attack of the fight we're currently simulating
         (or: after the fight is over, the amount of attacks)"""
 
     order: Order = Order.NORTH_FIRST
     """ Whether the first or second lineup attacks first """
+
+    north_side: Lineup = Lineup(color='\033[94m')
+    """ First lineup of the fight, drawn at the top"""
+    south_side: Lineup = Lineup(color='\033[93m')
+
+    @classmethod
+    def sides(cls):
+        yield cls.north_side
+        yield cls.south_side
+
+    @classmethod
+    def clear_sides(cls) -> None:
+        for side in cls.sides():
+            side.clear()
+
+    @classmethod
+    def reset(cls):
+        cls.clear_sides()
+        cls.step = 0
 
     @classmethod
     def next_attacking_side(cls) -> Lineup:
@@ -73,9 +88,10 @@ class Battleground:
 
         attacker.has_attacked = True
 
-        for m in [attacker, target]:
-            if m.dead() and m.lineup is not None:
-                m.lineup.remove(m)
+        for side in [cls.north_side, cls.south_side]:
+            for m in side:
+                if m.dead():
+                    side.remove(m)
 
         cls.step += 1
         print("")

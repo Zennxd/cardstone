@@ -3,6 +3,8 @@ from random import randint
 
 from effect import Effect, Poison, Taunt, DivineShield
 
+from colorama import Fore
+
 
 class Minion:
     """ A Unit of a lineup. Defined by its health, damage and its effects. """
@@ -13,12 +15,23 @@ class Minion:
         :param lineup: Which lineup this Minion belongs to (used for effects and printing)
         """
         self.attack = attack
-        self.health = health
+        self._health = health
         self.lineup = lineup
 
         self.effects: List[Effect] = []
 
         self.has_attacked = False
+
+    @property
+    def health(self):
+        return self._health
+
+    @health.setter
+    def health(self, value):
+        if self.has_effect(DivineShield):
+            self.effects = [e for e in self.effects if not isinstance(e, DivineShield)]
+        else:
+            self._health = value
 
     @classmethod
     def default_minion(cls, lineup: 'Lineup') -> 'Minion':
@@ -58,7 +71,7 @@ class Minion:
     def __repr__(self):
         """ The string representation of this minion. """
         endc: str = "\033[0m"
-        shell_color: str = self.lineup.color
+        shell_color: str = self.lineup.color if not self.has_effect(DivineShield) else Fore.YELLOW
         if self.has_effect(Taunt):
             shell_color += '\033[4m'  # underlined
 
@@ -79,6 +92,14 @@ class Lineup(List[Minion]):
     def __init__(self, color: str):
         self.color = color
         super().__init__()
+
+    def before_of(self, m: Minion) -> Minion:
+        idx: int = super().index(m)
+        return self[idx - 1] if idx != 0 else None
+
+    def next_of(self, m: Minion) -> Minion:
+        idx: int = super().index(m)
+        return self[idx + 1] if idx != len(self)-1 else None
 
     def random_target(self) -> Minion:
         """ Returns a random target for an attack.

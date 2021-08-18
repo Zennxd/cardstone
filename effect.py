@@ -37,7 +37,7 @@ class Taunt(Effect):
 
 class DivineShield(Effect):
     """ A minion will not lose health for an attack if it has a Divine Shield. """
-    # implementation in Battleground.one_step todo
+    # implementation in Minion.health.setter
     pass
 
 
@@ -48,3 +48,14 @@ class Poison(Effect):
 
     def on_damage(self, attacker: Minion):
         attacker.health = -999
+
+
+class AOE(Effect):
+    """ Area- Of- Effect deals damage to the minions next to the target. """
+    def after_attack(self, target: Minion):
+        left: Minion = target.lineup.before_of(target)
+        right: Minion = target.lineup.next_of(target)
+
+        for m in [left, right]:
+            if m is not None:
+                m.health -= self.owner.attack

@@ -1,28 +1,40 @@
-from random import randint
+import sys
+import os
+
 from battleground import Battleground
 from minion import Minion
-from effect import Poison, Taunt
-
+from effect import Poison, Taunt, DivineShield, AOE
 
 if __name__ == "__main__":
-    # fill both teams
-    for side in [Battleground.north_side, Battleground.south_side]:
-        for i in range(0, randint(5, 7)):
-            side.append(
-                Minion.default_minion(side) if randint(1, 100) > 50 else Minion.elite_minion(side)
-            )
-        # for m in side:
-        #     m.effects.append(Poison(m))
+    # sys.stdout = open(os.devnull, 'w')
+    f = open("results.csv", "a+")
 
-    # fight! (this calls what is essentially the main loop of the application)
-    Battleground.fight()
+    for iteration in range(1):
+        Battleground.reset()
 
-    # evaluate
-    if Battleground.north_side.defeated() and Battleground.south_side.defeated():
-        print("Draw")
-    elif not Battleground.north_side.defeated() and Battleground.south_side.defeated():
-        print("North won")
-    else:
-        print("South won")
+        # fill both teams
+        for ii in range(7):  # 1/1 poison divine shield
+            m = Minion(attack=1, health=2, lineup=Battleground.north_side)
+            m.effects.append(Poison(m))
+            m.effects.append(DivineShield(m))
+            Battleground.north_side.append(m)
 
-    print("attacks: " + str(Battleground.step))
+        for ii in range(7):  # stock hydra
+            m = Minion(attack=2, health=4, lineup=Battleground.south_side)
+            m.effects.append(AOE(m))
+            Battleground.south_side.append(m)
+
+        # ----------- #
+
+        Battleground.fight()  # (this calls what is essentially the main loop of the application)
+
+        # ----------- #
+
+        outcome: str = "Draw"
+        if not Battleground.north_side.defeated() and Battleground.south_side.defeated():
+            outcome = "North won"
+        elif Battleground.north_side.defeated() and not Battleground.south_side.defeated():
+            outcome = "South won"
+        print(f"{iteration}, {outcome}", file=f)
+
+        print("attacks: " + str(Battleground.step))
