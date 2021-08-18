@@ -1,12 +1,13 @@
 import sys
 import os
 import time
+from random import randint
 
-from pickle import loads
+from dill import loads
 
 from battleground import Battleground
+from effect import *
 from minion import Minion
-from effect import Poison, Taunt, DivineShield, AOE
 
 if __name__ == "__main__":
     iteration_amt: int = 1
@@ -14,7 +15,7 @@ if __name__ == "__main__":
     f = open(f"outcomes/results-{str(int(time.time()))}.csv", "w+")
     f.write("iteration, outcome\n")
 
-    if iteration_amt > 10:
+    if iteration_amt > 25:
         # printing is most of the work
         sys.stdout = open(os.devnull, 'w')
 
@@ -22,13 +23,16 @@ if __name__ == "__main__":
         Battleground.reset()
 
         # fill both teams
-
-        for side in Battleground.sides():
-            for ii in range(7):
-                with open("minions/hydra.minion", "br") as file:
-                    m: Minion = loads(file.read())
-                    m.lineup = side
-                side.append(m)
+        for _ in range(6):
+            with open("minions/hydra.minion", "br") as file:
+                m: Minion = loads(file.read())
+                m.lineup = Battleground.north_side
+                Battleground.north_side.append(m)
+        for _ in range(6):
+            with open("minions/super_spore.minion", "br") as file:
+                m: Minion = loads(file.read())
+                m.lineup = Battleground.south_side
+                Battleground.south_side.append(m)
 
         # ----------- #
 
@@ -43,10 +47,10 @@ if __name__ == "__main__":
             outcome = "South won"
         f.write(f"{iteration}, {outcome}\n")
 
+        print(outcome)
         print("attacks: " + str(Battleground.step - (1 if outcome == "Draw" else 0)))
 
+        # remaining minions
         for side in Battleground.sides():
-            print("side: ")
             for m in side:
                 print(repr(m) + "-" + repr(m.effects))
-    f.close()

@@ -1,4 +1,6 @@
-Minion: str = "Minion"  # circulatory import prevention bear ʕ •ᴥ•ʔ
+import math
+from types import MethodType
+Minion: str = "Minion"
 
 
 class Effect:
@@ -41,17 +43,11 @@ class DivineShield(Effect):
     # implementation in Minion.health.setter
     pass
 
-
 class Poison(Effect):
     """ This minion will deal practically infinite damage. """
-    def after_attack(self, target: Minion):
-        target.health = -999
-
-    def on_damage(self, attacker: Minion):
-        attacker.health = -999
-
-    def on_death(self, attacker: Minion):
-        self.on_damage(attacker)
+    def __init__(self, owner):
+        super().__init__(owner)
+        owner.attack = math.inf
 
 
 class AOE(Effect):
@@ -59,6 +55,9 @@ class AOE(Effect):
     def after_attack(self, target: Minion):
         left: Minion = target.lineup.before_of(target)
         right: Minion = target.lineup.next_of(target)
+
+        print(f"{self.owner} deals AOE Damage to {left}")
+        print(f"{self.owner} deals AOE Damage to {right}")
 
         # print(f"
         # {left.lineup.index(left) if left is not None else 'X'}

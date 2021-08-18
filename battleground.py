@@ -71,13 +71,13 @@ class Battleground:
         # choose random target
         target: Minion = cls.next_target_side().random_target()
 
-        print(f"{attacker} attacks {target} -> ", end="")
+        before_attack_state: str = f"{attacker} attacked {target} -> "
 
         for effect in attacker.effects:
             effect.before_attack(target)
 
-        target.health -= attacker.attack
-        attacker.health -= target.attack
+        attacker.attack_minion(target)
+        target.attack_minion(attacker)
 
         for effect in target.effects:
             if target.dead():
@@ -88,15 +88,17 @@ class Battleground:
         for effect in attacker.effects:
             effect.after_attack(target)
 
-        print(f"{attacker}  {target}")
+        before_attack_state += f"{attacker}  {target}"
 
         attacker.has_attacked = True
 
         for side in cls.sides():
             for minion in reversed(side):  # this reversed is important, otherwise you skip indices
                 if minion.health < 1:
-                    print(f"{minion} IS DEAD")
+                    print(f"{minion} died")
                     side.remove(minion)
+
+        print(before_attack_state)
 
         cls.step += 1
         print("")

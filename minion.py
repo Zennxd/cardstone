@@ -1,7 +1,11 @@
+import math
+import numbers
 from typing import Optional, Type, List
 from random import randint
 
-from effect import Effect, Poison, Taunt, DivineShield
+import colorama
+
+from effect import *
 
 from colorama import Fore
 
@@ -14,13 +18,21 @@ class Minion:
         :param health: Base health of the minion
         :param lineup: Which lineup this Minion belongs to (used for effects and printing)
         """
-        self.attack = attack
+        self._attack = attack
         self._health = health
         self.lineup = lineup
 
         self.effects: List[Effect] = []
 
         self.has_attacked = False
+
+    @property
+    def attack(self):
+        return self._attack if not self.has_effect(Poison) else math.inf
+
+    @attack.setter
+    def attack(self, value):
+        self._attack = value
 
     @property
     def health(self):
@@ -33,15 +45,6 @@ class Minion:
         else:
             self._health = value
 
-    @classmethod
-    def default_minion(cls, lineup: 'Lineup') -> 'Minion':
-        """ Factory method: returns a random, smol minion """
-        return Minion(
-            attack=randint(1, 4),
-            health=randint(1, 8),
-            lineup=lineup
-        )
-
     @property
     def place(self) -> int:
         """ returns the minions place in its lineup, or -1 if no lineup exists """
@@ -49,22 +52,15 @@ class Minion:
             return -1
         return [i for i, m in enumerate(self.lineup) if m is self][0]
 
-    @classmethod
-    def elite_minion(cls, lineup: 'Lineup') -> 'Minion':
-        """ Factory method: returns a random, big minion (with potential effects) """
-        m = Minion(
-            attack=randint(5, 30),
-            health=randint(1, 25),
-            lineup=lineup
-        )
-        if randint(0, 100) < 20:
-            m.effects.append(Poison(m))
-        if randint(0, 100) < 25:
-            m.effects.append(DivineShield(m))
-        if randint(0, 100) < 50:
-            m.effects.append(Taunt(m))
+    # attacking
+    def attack_minion(self, target: 'Minion'):
+        """ In what way this minion attacks """
+        target.health -= self.attack
 
-        return m
+    # util
+    def add_effect(self, effect_type: Type[Effect]) -> None:
+        """ Adds an instance of given Effect type to self. """
+        self.effects.append(effect_type(self))
 
     def dead(self) -> bool:
         """ is my health zero or below? """
@@ -74,19 +70,46 @@ class Minion:
         """ Does this minion have an effect with this type? """
         return len([e for e in self.effects if isinstance(e, effect_type)]) > 0
 
+    # factories
+    @classmethod
+    def default_minion(cls, lineup: 'Lineup') -> 'Minion':
+        """ Factory method: returns a random, smol minion """
+        return Minion(
+            attack=randint(1, 4),
+            health=randint(1, 8),
+            lineup=lineup
+        )
+
+    @classmethod
+    def elite_minion(cls, lineup: 'Lineup') -> 'Minion':
+        """ Factory method: returns a random, big minion (with potential effects) """
+        m = Minion(
+            attack=randint(5, 30),
+            health=randint(1, 25),
+            lineup=lineup
+        )
+        for e in [DivineShield, Poison]:
+            if randint(0, 100) < 25:
+                m.add_effect(e)
+
+        return m
+
+    # protocols
     def __str__(self):
         """ The string representation of this minion. """
+        spacing: str = " "
         endc: str = "\033[0m"
+        poison: str = '\033[92m'  # green
         shell_color: str = self.lineup.color if not self.has_effect(DivineShield) else Fore.YELLOW
+
         if self.has_effect(Taunt):
             shell_color += '\033[4m'  # underlined
 
-        attack: str = str(self.attack).rjust(2)
-        poison: str = '\033[92m'  # green
+        attack: str = str(self.attack).rjust(3, spacing)
         if self.has_effect(Poison):
             attack = f"{poison}{attack}"
 
-        health: str = str(self.health).rjust(2)
+        health: str = str(self.health).rjust(3, spacing)
         if self.health < 1:
             health = f"\033[91m{health}"  # red
 
