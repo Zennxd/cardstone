@@ -50,12 +50,17 @@ class Poison(Effect):
     def on_damage(self, attacker: Minion):
         attacker.health = -999
 
+    def on_death(self, attacker: Minion):
+        self.on_damage(attacker)
+
 
 class AOE(Effect):
     """ Area-Of-Effect deals damage to the minions next to the target. """
     def after_attack(self, target: Minion):
         left: Minion = target.lineup.before_of(target)
         right: Minion = target.lineup.next_of(target)
+
+        print(f"{left.lineup.index(left) if left is not None else 'X'} {self.owner.lineup.index(self.owner)} {right.lineup.index(right) if right is not None else 'X'}")
 
         for m in [left, right]:
             if m is not None:

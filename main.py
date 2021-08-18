@@ -7,10 +7,13 @@ from minion import Minion
 from effect import Poison, Taunt, DivineShield, AOE
 
 if __name__ == "__main__":
-    iteration_amt: int = 100000
+    iteration_amt: int = 1
 
     f = open(f"outcomes/results-{str(int(time.time()))}.csv", "w+")
+    f.write("iteration, outcome\n")
+
     if iteration_amt > 10:
+        # printing is most of the work
         sys.stdout = open(os.devnull, 'w')
 
     for iteration in range(iteration_amt):
@@ -39,6 +42,12 @@ if __name__ == "__main__":
             outcome = "North won"
         elif Battleground.north_side.defeated() and not Battleground.south_side.defeated():
             outcome = "South won"
-        print(f"{iteration}, {outcome}", file=f)
+        f.write(f"{iteration}, {outcome}\n")
 
         print("attacks: " + str(Battleground.step))
+
+        for side in Battleground.sides():
+            print("side: ")
+            for m in side:
+                print(repr(m) + "-" + repr(m.effects))
+    f.close()

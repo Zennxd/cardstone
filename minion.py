@@ -42,6 +42,13 @@ class Minion:
             lineup=lineup
         )
 
+    @property
+    def place(self) -> int:
+        """ returns the minions place in its lineup, or -1 if no lineup exists """
+        if self.lineup is None:
+            return -1
+        return [i for i, m in enumerate(self.lineup) if m is self][0]
+
     @classmethod
     def elite_minion(cls, lineup: 'Lineup') -> 'Minion':
         """ Factory method: returns a random, big minion (with potential effects) """
@@ -60,17 +67,14 @@ class Minion:
         return m
 
     def dead(self) -> bool:
-        """ is my health below zero? """
-        return self.health <= 0
+        """ is my health zero or below? """
+        return self.health < 1
 
     def has_effect(self, effect_type: Type[Effect]) -> bool:
         """ Does this minion have an effect with this type? """
         return len([e for e in self.effects if isinstance(e, effect_type)]) > 0
 
     def __str__(self):
-        return self.__repr__()
-
-    def __repr__(self):
         """ The string representation of this minion. """
         endc: str = "\033[0m"
         shell_color: str = self.lineup.color if not self.has_effect(DivineShield) else Fore.YELLOW
@@ -86,7 +90,14 @@ class Minion:
         if self.health < 1:
             health = f"\033[91m{health}"  # red
 
-        return f"""{shell_color}[{endc}{attack}{endc}{shell_color}|{endc}{health}{endc}{shell_color}]{endc}"""
+        return f"""{self.place}.{shell_color}[{endc}{attack}{endc}{shell_color}|{endc}{health}{endc}{shell_color}]{endc}"""
+
+    def __repr__(self):
+        repr_str: str = "Minion "
+        repr_str += f"Attack={self.attack} Health={self.health} "
+        repr_str += f"Place: {self.lineup.index(self)}" if self.lineup is not None else ""
+
+        return repr_str
 
 
 class Lineup(List[Minion]):
@@ -96,11 +107,11 @@ class Lineup(List[Minion]):
         super().__init__()
 
     def before_of(self, m: Minion) -> Minion:
-        idx: int = super().index(m)
+        idx: int = m.place
         return self[idx - 1] if idx != 0 else None
 
     def next_of(self, m: Minion) -> Minion:
-        idx: int = super().index(m)
+        idx: int = m.place
         return self[idx + 1] if idx != len(self)-1 else None
 
     def random_target(self) -> Minion:

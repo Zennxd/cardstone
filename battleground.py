@@ -57,9 +57,10 @@ class Battleground:
         """ The main logic for a given step in a fight. This method calls minion effects, calculates minion damage
          during and after the attack, and prints the attack's outcome.
          This method also increments the step variable. """
-        for m in cls.north_side + cls.south_side:
-            for effect in m.effects:
-                effect.combat_start()
+        if cls.step == 0:
+            for m in cls.north_side + cls.south_side:
+                for effect in m.effects:
+                    effect.combat_start()
 
         # select next attacker
         attacking_side = cls.next_attacking_side()
@@ -89,10 +90,11 @@ class Battleground:
 
         attacker.has_attacked = True
 
-        for side in [cls.north_side, cls.south_side]:
-            for m in side:
-                if m.dead():
-                    side.remove(m)
+        for side in cls.sides():
+            for minion in reversed(side):  # this reversed is important, otherwise you skip indices
+                if minion.health < 1:
+                    print(f"{minion} IS DEAD")
+                    side.remove(minion)
 
         cls.step += 1
         print("")
