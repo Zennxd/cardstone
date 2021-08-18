@@ -2,6 +2,8 @@ import sys
 import os
 import time
 
+from pickle import loads
+
 from battleground import Battleground
 from minion import Minion
 from effect import Poison, Taunt, DivineShield, AOE
@@ -20,16 +22,13 @@ if __name__ == "__main__":
         Battleground.reset()
 
         # fill both teams
-        for ii in range(7):  # 1/1 poison divine shield
-            m = Minion(attack=1, health=1, lineup=Battleground.north_side)
-            m.effects.append(Poison(m))
-            m.effects.append(DivineShield(m))
-            Battleground.north_side.append(m)
 
-        for ii in range(7):  # stock hydra
-            m = Minion(attack=2, health=4, lineup=Battleground.south_side)
-            m.effects.append(AOE(m))
-            Battleground.south_side.append(m)
+        for side in Battleground.sides():
+            for ii in range(7):
+                with open("minions/hydra.minion", "br") as file:
+                    m: Minion = loads(file.read())
+                    m.lineup = side
+                side.append(m)
 
         # ----------- #
 

@@ -2,6 +2,8 @@ from typing import List
 from enum import IntEnum
 import random
 
+from colorama import Fore
+
 from minion import Minion, Lineup
 
 
@@ -21,9 +23,9 @@ class Battleground:
     order: Order = Order.NORTH_FIRST
     """ Whether the first or second lineup attacks first """
 
-    north_side: Lineup = Lineup(color='\033[94m')
+    north_side: Lineup = Lineup(color=Fore.BLUE)
     """ First lineup of the fight, drawn at the top"""
-    south_side: Lineup = Lineup(color='\033[93m')
+    south_side: Lineup = Lineup(color=Fore.LIGHTRED_EX)
 
     @classmethod
     def sides(cls):
