@@ -43,7 +43,7 @@ if __name__ == "__main__":
             outcome = "South won"
         f.write(f"{iteration}, {outcome}\n")
 
-        print("attacks: " + str(Battleground.step))
+        print("attacks: " + str(Battleground.step - (1 if outcome == "Draw" else 0)))
 
         for side in Battleground.sides():
             print("side: ")
