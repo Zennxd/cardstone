@@ -1,11 +1,10 @@
+import random
 import sys
 import os
 import time
-from random import randint
-
-from dill import loads
 
 from battleground import Battleground
+from api.fetcher import Fetcher
 from effect import *
 from minion import Minion
 
@@ -28,17 +27,20 @@ if __name__ == "__main__":
             print(iteration)
 
         # fill both teams
-        for _ in range(6):
-            with open("minions/hydra.minion", "br") as file:
-                m: Minion = loads(file.read())
-                m.lineup = Battleground.north_side
+        cards = Fetcher.fetch()
+        for side in Battleground.sides():
+            for _ in range(6):
+                rnd = random.choice(cards)
+                m = Minion(rnd["attack"], rnd["health"], lineup=side)
+                if rnd.get("mechanics") is not None:
+                    if "TAUNT" in rnd.get("mechanics"):
+                        m.add_effect(Taunt)
+                    if "DIVINE_SHIELD" in rnd.get("mechanics"):
+                        m.add_effect(DivineShield)
+                    if "POISONOUS" in rnd.get("mechanics"):
+                        m.add_effect(Poison)
 
-                Battleground.north_side.append(m)
-        for _ in range(6):
-            with open("minions/super_spore.minion", "br") as file:
-                m: Minion = loads(file.read())
-                m.lineup = Battleground.south_side
-                Battleground.south_side.append(m)
+                side.append(m)
 
         # ----------- #
 
