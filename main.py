@@ -9,8 +9,10 @@ from effect import *
 from minion import Minion
 from anal.analysis import Analysis
 
+from dill import loads
+
 if __name__ == "__main__":
-    iteration_amt: int = 100
+    iteration_amt: int = 1
     optimization_limit: int = 25
 
     with Analysis(stdout=(True if iteration_amt < optimization_limit else False)) as anal:
@@ -21,22 +23,17 @@ if __name__ == "__main__":
                 print(iteration)
 
             # fill both teams
-            cards = Fetcher.fetch()
-            for side in Battleground.sides():
-                for l in range(6):
-                    rnd = random.choice(cards)
-                    anal.lineups.write(rnd["name"] + (", " if l != 5 else ""))
-                    m = Minion(rnd["attack"], rnd["health"], lineup=side)
-                    if rnd.get("mechanics") is not None:
-                        if "TAUNT" in rnd.get("mechanics"):
-                            m.add_effect(Taunt)
-                        if "DIVINE_SHIELD" in rnd.get("mechanics"):
-                            m.add_effect(DivineShield)
-                        if "POISONOUS" in rnd.get("mechanics"):
-                            m.add_effect(Poison)
+            for _ in range(7):
+                with open("minions/hydra.minion", "br") as pickle:
+                    m: Minion = loads(pickle.read())
+                    m.lineup = Battleground.north_side
+                    Battleground.north_side.append(m)
 
-                    side.append(m)
-                anal.lineups.write("\n")
+            for _ in range(7):
+                with open("minions/super_spore.minion", "br") as pickle:
+                    m: Minion = loads(pickle.read())
+                    m.lineup = Battleground.south_side
+                    Battleground.south_side.append(m)
 
             # ----------- #
 
