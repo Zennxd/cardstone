@@ -11,12 +11,9 @@ from anal.analysis import Analysis
 
 if __name__ == "__main__":
     iteration_amt: int = 100
+    optimization_limit: int = 25
 
-    if iteration_amt > 25:
-        # printing is most of the work
-        sys.stdout = open(os.devnull, 'w')
-
-    with Analysis() as anal:
+    with Analysis(stdout=(True if iteration_amt < optimization_limit else False)) as anal:
         for iteration in range(iteration_amt):
             Battleground.reset()
 
