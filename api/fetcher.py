@@ -6,14 +6,23 @@ TIER: str = "techLevel"
 
 class Fetcher:
     api_link: str = "https://api.hearthstonejson.com/v1/91040/enUS/cards.json"
+    cached_json: list = None
 
     @staticmethod
-    def fetch(api_link: str = None, debug: bool = False) -> List[dict]:
+    def fetch(api_link: str = None, debug: bool = False, invalidate_cache: bool = False) -> List[dict]:
         if api_link is None:
             api_link = Fetcher.api_link
 
         # buffers
-        json = requests.get(api_link).json()  # type: list
+        if invalidate_cache:
+            Fetcher.cached_json = None
+
+        if Fetcher.cached_json is None:
+            print("No api cache, requesting")
+            json = requests.get(api_link).json()  # type: list
+            Fetcher.cached_json = json
+        else:
+            json = Fetcher.cached_json
         filtered_json = []
         categorized_by_tier: Dict[int, List[str]] = {}
         for ii in range(1, 7):

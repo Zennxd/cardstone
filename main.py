@@ -9,7 +9,7 @@ from effect import *
 from minion import Minion
 
 if __name__ == "__main__":
-    iteration_amt: int = 1
+    iteration_amt: int = 5
 
     file_name: str = f"results-{str(int(time.time()))}"
 
